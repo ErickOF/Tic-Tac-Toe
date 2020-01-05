@@ -1,0 +1,119 @@
+#lang racket/gui
+(require table-panel)
+;frame principal
+(define intro (new frame%
+                   [label "Gato"]
+                   [width 300]
+                   [height 100]))
+;texto
+(define msg (new message% [parent intro]
+                          [label "Buenas por favor digite el tamano del gato:"]))
+;texto
+(define mText (new text-field%
+                     [label "m:"]
+                     [parent intro]))
+;texto
+(define nText (new text-field%
+                     [label "n:"]
+                     [parent intro]))
+
+;variable global de la matri con la que se crean los botones
+(define matrizPrincipal '())
+(define m 0)
+(define n 0)
+
+
+;poblador de matriz
+(define (poblarMatriz m n matriz contador)
+  (cond ((equal? (* m n) (length matriz))
+         (set! matrizPrincipal matriz)
+         matrizPrincipal)
+        (else (poblarMatriz m n (append matriz (list contador)) (+ contador 1)))))
+
+
+;frame principal
+(define frame
+  (instantiate frame%
+    ("Gato")))
+
+
+
+;boton para iniciar juego
+(new button% [parent intro]
+             [label "Inicio"]
+             [callback (lambda (button event)
+                         (send intro show #f)
+                         (set! m (string->number (send mText get-value)))
+                         (set! n (string->number (send nText get-value)))
+                         (poblarMatriz m n matrizPrincipal 0)
+                         (inicio m n)
+                         (send frame show #t))])
+
+
+;panel principal del juego
+(define panelPrincipal
+  (instantiate table-panel%
+    (frame)
+    (alignment '(center center))
+    (dimensions '(2 2))))
+
+
+;imprime que boton fue precionado
+(define (on-button-click button index event)
+  (listaMatriz m n matrizPrincipal '() '())
+  (printf "button ~a clicked~%" index))
+
+(define buttons #[])
+
+
+;creacion de botones y los eventos de cada uno
+(define (inicio m n)
+  (let ((panelGato (instantiate table-panel%
+                 (panelPrincipal)
+                 (style '(border))
+                 (dimensions (list m n))
+                 (column-stretchability (if (memq 1 '(0 1)) #t #f))
+                 (row-stretchability (if (memq 1 '(0 2)) #t #f)))))
+    ;---------------
+    (let ((temp (for/vector ([j matrizPrincipal])
+                     (new button%
+                          [parent panelGato]
+                          [label (format "~a" j)]
+                          [callback (lambda (button event)
+                                      (send button enable #f)
+                                      (send button set-label "X")
+                                      (cond ((equal? 1 1)
+                                             #f))
+                                      ;aqui deberia estar lo de allan
+                                      ;esta
+                                      (send (vector-ref buttons (random (* m n))) set-label "O")
+                                      (on-button-click button j event))]))))
+      (set! buttons (vector-append buttons temp))
+      (set! matrizPrincipal (listaMatriz m n matrizPrincipal '() '())))))
+
+;funcion recursiva para pasar de una lista a una matriz
+(define (listaMatriz mTemp nTemp lista temp resultado)
+  (cond ((equal? nTemp 0)
+         resultado)
+        ((equal? mTemp 0)
+         (listaMatriz m (- nTemp 1) lista '() (append resultado (list temp))))
+        (else
+         (listaMatriz (- mTemp 1) nTemp (cdr lista) (append temp (list (car lista))) resultado))))
+
+;frame gano el juego
+(define gano (new frame%
+                   [label "Gato"]
+                   [width 300]
+                   [height 100]))
+(define msgGano (new message% [parent intro]
+                          [label "Ganaste el juego!"]))
+;frame perdio el juego
+(define perdio (new frame%
+                   [label "Gato"]
+                   [width 300]
+                   [height 100]))
+(define msgPerdio (new message% [parent intro]
+                          [label "Perdite el juego!"]))
+
+
+(send intro show #t)

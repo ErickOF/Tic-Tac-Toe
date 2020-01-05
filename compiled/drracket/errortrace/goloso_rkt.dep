@@ -1,0 +1,1 @@
+("6.12" ("d4e654611edc0fefdac3f3433a0b1098a960769e" . "aa510f71a304c8ccd6b704b33943b98b93a41ae7") #"C:\\Users\\Christopher\\Desktop\\Progra 1-revisado2\\funciones.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"include.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt"))
